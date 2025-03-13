@@ -10,14 +10,14 @@ const HomeUser = () => {
             let user = await getProfile();
 
             if (!user || user.status === false) {
-                window.location.href = "http://localhost:3000/login";
+                window.location.href = `${window.location.origin}/login`;
                 return; // Dừng thực thi tiếp
             }
 
             setUser(user);
         } catch (error) {
             console.error("Lỗi khi lấy hồ sơ người dùng:", error);
-            window.location.href = "http://localhost:3000/login";
+            window.location.href = `${window.location.origin}/login`;
         }
     };
 

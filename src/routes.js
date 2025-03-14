@@ -5,6 +5,7 @@ import ManagerUser from './components/Admin/ManagerUser';
 import Login from './components/Auth/Login';
 import HomeUser from './components/User/HomeUser';
 import Register from './components/Auth/Register';
+import Message from './components/Admin/Message';
 const Router = () => {
     return (<>
         <Routes>
@@ -16,6 +17,8 @@ const Router = () => {
             </Route>
 
             <Route path='/register' element={<Register />}>
+            </Route>
+            <Route path='/chat' element={<Message />}>
             </Route>
 
         </Routes>

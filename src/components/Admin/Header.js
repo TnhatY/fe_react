@@ -37,6 +37,7 @@ const Header = () => {
                         <NavLink to='/' className='nav-link'>Home</NavLink>
                         <NavLink to='/' className='nav-link'>Admin</NavLink>
                         <NavLink to='/profile' className='nav-link'>User</NavLink>
+                        <NavLink to='/chat' className='nav-link'>Message</NavLink>
                         {/*                     
                         <Nav.Link href="#home">Home</Nav.Link>
                         <Nav.Link href="#link">Link</Nav.Link> */}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { io } from "socket.io-client";
 import axios from "axios";
+import { getProfile } from "../../services/api";
 
 const socket = io("https://be-mongodb.onrender.com", { withCredentials: true });
 
@@ -8,14 +9,29 @@ const Message = () => {
     const [receiverId, setReceiverId] = useState("");
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
+    const [user, setUser] = useState("");
+    const showProfile = async () => {
+        try {
+            let user = await getProfile();
 
+            if (!user || user.status === false) {
+                window.location.href = `${window.location.origin}/login`;
+                return; // Dừng thực thi tiếp
+            }
+
+            setUser(user);
+        } catch (error) {
+            console.error("Lỗi khi lấy hồ sơ người dùng:", error);
+            window.location.href = `${window.location.origin}/login`;
+        }
+    };
     useEffect(() => {
         socket.emit("authenticate"); // Server tự lấy token từ Cookie
 
         socket.on("private message", ({ from, message }) => {
             setMessages((prev) => [...prev, { from, text: message, type: "received" }]);
         });
-
+        showProfile();
         return () => {
             socket.off("private message");
         };
@@ -34,6 +50,7 @@ const Message = () => {
             <h2 className="text-xl font-bold text-center mb-4">Chat App</h2>
 
             <div className="mb-4">
+                <p>ID: {user._id}</p>
                 <label className="block text-sm font-medium">Recipient ID</label>
                 <input
                     type="text"

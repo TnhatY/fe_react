@@ -2,7 +2,7 @@ import axios from "axios";
 import { toast } from "sonner";
 
 const instance = axios.create({
-    baseURL: 'http://localhost:8089/',
+    baseURL: 'https://be-mongodb.onrender.com/',
     withCredentials: true, // Gửi cookie khi request
 });
 
@@ -31,7 +31,7 @@ instance.interceptors.response.use(
             isRefreshing = true;
 
             try {
-                let res = await axios.post("http://localhost:8089/auth/refresh", {}, { withCredentials: true });
+                let res = await axios.post("https://be-mongodb.onrender.com/auth/refresh", {}, { withCredentials: true });
                 if (res) {
                     console.log(res.data.message)
                 }
@@ -39,7 +39,7 @@ instance.interceptors.response.use(
                 return instance(originalRequest); // Gửi lại request bị lỗi
             } catch (err) {
                 console.error("Refresh Token Expired!", err);
-                window.location.href = "/login"; // Chuyển hướng đăng nhập
+                window.location.href = `${window.location.origin}/login`;
                 return Promise.reject(err);
             } finally {
                 isRefreshing = false;

@@ -22,5 +22,5 @@ export const postRegister = async (email, firstName, lastName, passWord) => {
 }
 
 export const getLoginWithGoogle = () => {
-    return window.location.href = "http://localhost:8089/auth/google";
+    return window.location.href = "https://be-mongodb.onrender.com/auth/google";
 }

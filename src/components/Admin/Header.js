@@ -12,7 +12,7 @@ const Header = () => {
 
     const handleLogout = async () => {
         try {
-            const response = await axios.post("http://localhost:8089/logout", {}, {
+            const response = await axios.post("https://be-mongodb.onrender.com/logout", {}, {
                 withCredentials: true // Cho phép gửi cookie
             });
 

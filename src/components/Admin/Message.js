@@ -1,101 +1,82 @@
-import React, { useState, useEffect } from "react";
-import { io } from "socket.io-client";
-import axios from "axios";
-import { getProfile } from "../../services/api";
+import React, { useState, useEffect, useRef } from "react";
+import socketIOClient from "socket.io-client";
 
-const socket = io("https://be-mongodb.onrender.com", { withCredentials: true });
+const host = "https://be-mongodb.onrender.com";
 
-const Message = () => {
-    const [receiverId, setReceiverId] = useState("");
-    const [message, setMessage] = useState("");
+function App() {
     const [messages, setMessages] = useState([]);
-    const [user, setUser] = useState("");
-    const showProfile = async () => {
-        try {
-            let user = await getProfile();
+    const [message, setMessage] = useState("");
+    const [userId, setUserId] = useState(""); // User ID từ backend
+    const [users, setUsers] = useState([]); // Danh sách user online
+    const [receiverId, setReceiverId] = useState(""); // ID của người nhận
 
-            if (!user || user.status === false) {
-                window.location.href = `${window.location.origin}/login`;
-                return; // Dừng thực thi tiếp
-            }
+    const socketRef = useRef();
 
-            setUser(user);
-        } catch (error) {
-            console.error("Lỗi khi lấy hồ sơ người dùng:", error);
-            window.location.href = `${window.location.origin}/login`;
-        }
-    };
     useEffect(() => {
-        socket.emit("authenticate"); // Server tự lấy token từ Cookie
-
-        socket.on("private message", ({ from, message }) => {
-            setMessages((prev) => [...prev, { from, text: message, type: "received" }]);
+        // Kết nối socket
+        socketRef.current = socketIOClient.connect(host, {
+            withCredentials: true, // Cho phép gửi cookie (HttpOnly)
         });
-        showProfile();
+
+        // Nhận userId từ server sau khi kết nối
+        socketRef.current.on("connect", () => {
+            console.log("Connected to server:", socketRef.current.id);
+        });
+
+        // Cập nhật danh sách user online
+        socketRef.current.on("updateUserList", (userList) => {
+            console.log("Online Users:", userList);
+            setUsers(userList);
+        });
+
+        // Nhận tin nhắn riêng tư
+        socketRef.current.on("privateMessage", (data) => {
+            setMessages((prev) => [...prev, data]);
+        });
+
         return () => {
-            socket.off("private message");
+            socketRef.current.disconnect();
         };
     }, []);
 
     const sendMessage = () => {
-        if (receiverId && message) {
-            socket.emit("private message", { to: receiverId, message });
-            setMessages((prev) => [...prev, { from: "You", text: message, type: "sent" }]);
+        if (message.trim() !== "" && receiverId !== "") {
+            socketRef.current.emit("privateMessage", {
+                to: receiverId,
+                message,
+            });
+            setMessages((prev) => [...prev, { from: userId, message }]); // Hiển thị tin nhắn của mình
             setMessage("");
         }
     };
 
     return (
-        <div className="max-w-md mx-auto p-6 bg-gray-100 rounded-lg shadow-lg">
-            <h2 className="text-xl font-bold text-center mb-4">Chat App</h2>
-
-            <div className="mb-4">
-                <p>ID: {user._id}</p>
-                <label className="block text-sm font-medium">Recipient ID</label>
-                <input
-                    type="text"
-                    className="w-full px-3 py-2 border rounded-lg"
-                    placeholder="Enter recipient ID..."
-                    value={receiverId}
-                    onChange={(e) => setReceiverId(e.target.value)}
-                />
-            </div>
-
-            <div className="mb-4">
-                <label className="block text-sm font-medium">Message</label>
-                <textarea
-                    className="w-full px-3 py-2 border rounded-lg"
-                    rows="3"
-                    placeholder="Type your message..."
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                />
-            </div>
-
-            <button
-                className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600"
-                onClick={sendMessage}
-            >
-                Send Message
-            </button>
-
-            <div className="mt-6 bg-white p-4 rounded-lg shadow-inner h-60 overflow-y-auto">
-                <h3 className="text-lg font-semibold mb-2">Messages</h3>
-                <ul className="space-y-2">
-                    {messages.map((msg, index) => (
-                        <li
-                            key={index}
-                            className={`p-2 rounded-lg text-sm ${msg.type === "sent" ? "bg-blue-500 text-white text-right" : "bg-gray-200 text-black text-left"}`}
-                        >
-                            <strong>{msg.from}:</strong> {msg.text}
+        <div className="chat-container">
+            <div className="user-list">
+                <h3>Online Users</h3>
+                <ul>
+                    {users.map((id) => (
+                        <li key={id} onClick={() => setReceiverId(id)}>
+                            {id} {receiverId === id && "(Selected)"}
                         </li>
                     ))}
                 </ul>
+            </div>
+
+            <div className="chat-box">
+                {messages.map((m, index) => (
+                    <div key={index} className={m.from === userId ? "my-message" : "other-message"}>
+                        {m.message}
+                    </div>
+                ))}
+            </div>
+
+            <div className="send-box">
+                <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Nhập tin nhắn ..." />
+                <button onClick={sendMessage}>Send</button>
             </div>
         </div>
     );
 }
 
-
-
-export default Message;
+export default App;

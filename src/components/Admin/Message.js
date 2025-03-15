@@ -1,29 +1,36 @@
 import React, { useState, useEffect, useRef } from "react";
 import socketIOClient from "socket.io-client";
 import './Message.css';
+
 const host = "https://be-mongodb.onrender.com";
 
 function Message() {
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState("");
-    const [userId, setUserId] = useState(""); // User ID từ backend
+    const [userId, setUserId] = useState(""); // Lưu userId của người dùng hiện tại
     const [users, setUsers] = useState([]); // Danh sách user online
-    const [receiverId, setReceiverId] = useState(""); // ID của người nhận
+    const [receiverId, setReceiverId] = useState(""); // ID người nhận
 
     const socketRef = useRef();
 
     useEffect(() => {
         socketRef.current = socketIOClient.connect(host, {
-            withCredentials: true, // Cho phép gửi cookie (HttpOnly)
+            withCredentials: true, // Cho phép gửi cookie
         });
 
         socketRef.current.on("connect", () => {
             console.log("Connected to server:", socketRef.current.id);
         });
 
+        // Nhận userId từ server
+        socketRef.current.on("authenticated", (id) => {
+            console.log("Authenticated as:", id);
+            setUserId(id);
+        });
+
         socketRef.current.on("updateUserList", (userList) => {
             console.log("Online Users:", userList);
-            setUsers(userList);
+            setUsers(userList.filter(user => user.id !== userId)); // Lọc bỏ user hiện tại
         });
 
         socketRef.current.on("privateMessage", (data) => {
@@ -33,7 +40,7 @@ function Message() {
         return () => {
             socketRef.current.disconnect();
         };
-    }, []);
+    }, [userId]); // Chạy lại khi userId thay đổi
 
     const sendMessage = () => {
         if (message.trim() !== "" && receiverId !== "") {

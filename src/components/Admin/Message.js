@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import socketIOClient from "socket.io-client";
-
+import './Message.css';
 const host = "https://be-mongodb.onrender.com";
 
-function App() {
+function Message() {
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState("");
     const [userId, setUserId] = useState(""); // User ID từ backend
@@ -13,23 +13,19 @@ function App() {
     const socketRef = useRef();
 
     useEffect(() => {
-        // Kết nối socket
         socketRef.current = socketIOClient.connect(host, {
             withCredentials: true, // Cho phép gửi cookie (HttpOnly)
         });
 
-        // Nhận userId từ server sau khi kết nối
         socketRef.current.on("connect", () => {
             console.log("Connected to server:", socketRef.current.id);
         });
 
-        // Cập nhật danh sách user online
         socketRef.current.on("updateUserList", (userList) => {
             console.log("Online Users:", userList);
             setUsers(userList);
         });
 
-        // Nhận tin nhắn riêng tư
         socketRef.current.on("privateMessage", (data) => {
             setMessages((prev) => [...prev, data]);
         });
@@ -45,7 +41,7 @@ function App() {
                 to: receiverId,
                 message,
             });
-            setMessages((prev) => [...prev, { from: userId, message }]); // Hiển thị tin nhắn của mình
+            setMessages((prev) => [...prev, { from: userId, message }]);
             setMessage("");
         }
     };
@@ -55,9 +51,10 @@ function App() {
             <div className="user-list">
                 <h3>Online Users</h3>
                 <ul>
-                    {users.map((id) => (
-                        <li key={id} onClick={() => setReceiverId(id)}>
-                            {id} {receiverId === id && "(Selected)"}
+                    {users.map((user) => (
+                        <li key={user.id} onClick={() => setReceiverId(user.id)} className={receiverId === user.id ? "selected" : ""}>
+                            <img src={user.avatar} alt="avatar" className="user-avatar" />
+                            <span>{user.lastName}</span>
                         </li>
                     ))}
                 </ul>
@@ -65,7 +62,7 @@ function App() {
 
             <div className="chat-box">
                 {messages.map((m, index) => (
-                    <div key={index} className={m.from === userId ? "my-message" : "other-message"}>
+                    <div key={index} className={`message ${m.from === userId ? "my-message" : "other-message"}`}>
                         {m.message}
                     </div>
                 ))}
@@ -79,4 +76,4 @@ function App() {
     );
 }
 
-export default App;
+export default Message;

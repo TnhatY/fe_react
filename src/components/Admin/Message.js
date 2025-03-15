@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import socketIOClient from "socket.io-client";
-import './Message.css';
+//import './Message.css';
 
 const host = "https://be-mongodb.onrender.com";
 

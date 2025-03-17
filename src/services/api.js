@@ -24,3 +24,7 @@ export const postRegister = async (email, firstName, lastName, passWord) => {
 export const getLoginWithGoogle = () => {
     return window.location.href = "https://be-mongodb.onrender.com/auth/google";
 }
+
+export const getMessage = async (receiverId) => {
+    return await axios.post('message', { receiverId })
+}

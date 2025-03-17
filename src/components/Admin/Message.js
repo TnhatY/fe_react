@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import socketIOClient from "socket.io-client";
 import './Message.css';
+import { getMessage } from '../../services/api.js'
 
 const host = "https://be-mongodb.onrender.com";
 
@@ -53,13 +54,24 @@ function Message() {
         }
     };
 
+    const chooseRecevierId = async (id) => {
+        setReceiverId(id);
+        let res = await getMessage(id);
+        if (res) {
+            console.log(res)
+        } else {
+            console.log('lỗi message')
+        }
+
+    }
+
     return (
         <div className="chat-container">
             <div className="user-list">
                 <h3>Online Users</h3>
                 <ul>
                     {users.map((user) => (
-                        <li key={user.id} onClick={() => setReceiverId(user.id)} className={receiverId === user.id ? "selected" : ""}>
+                        <li key={user.id} onClick={() => chooseRecevierId(user.id)} className={receiverId === user.id ? "selected" : ""}>
                             <img src={user.avatar} alt="avatar" className="user-avatar" />
                             <span>{user.lastName}</span>
                         </li>

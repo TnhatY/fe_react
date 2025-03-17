@@ -41,7 +41,7 @@ function Message() {
         return () => {
             socketRef.current.disconnect();
         };
-    }, [userId]); // Chạy lại khi userId thay đổi
+    }, []); // Chạy lại khi userId thay đổi
 
     const sendMessage = () => {
         if (message.trim() !== "" && receiverId !== "") {

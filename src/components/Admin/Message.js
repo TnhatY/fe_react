@@ -88,7 +88,7 @@ function Message() {
                     </div>
                 ))}
                 {messageList.map((m, index) => (
-                    <div key={index} className={`message ${m.from === userId ? "my-message" : "other-message"}`}>
+                    <div key={index} className={`message ${m.userId === userId ? "my-message" : "other-message"}`}>
                         {m.message}
                     </div>
                 ))}

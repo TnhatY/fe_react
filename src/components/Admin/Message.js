@@ -10,7 +10,8 @@ function Message() {
     const [message, setMessage] = useState("");
     const [userId, setUserId] = useState(""); // Lưu userId của người dùng hiện tại
     const [users, setUsers] = useState([]); // Danh sách user online
-    const [receiverId, setReceiverId] = useState(""); // ID người nhận
+    const [receiverId, setReceiverId] = useState("");
+    const [messageList, setMessageList] = useState([]);
 
     const socketRef = useRef();
 
@@ -59,6 +60,7 @@ function Message() {
         let res = await getMessage(id);
         if (res) {
             console.log(res)
+            setMessageList(res.message)
         } else {
             console.log('lỗi message')
         }
@@ -81,6 +83,11 @@ function Message() {
 
             <div className="chat-box">
                 {messages.map((m, index) => (
+                    <div key={index} className={`message ${m.from === userId ? "my-message" : "other-message"}`}>
+                        {m.message}
+                    </div>
+                ))}
+                {messageList.map((m, index) => (
                     <div key={index} className={`message ${m.from === userId ? "my-message" : "other-message"}`}>
                         {m.message}
                     </div>

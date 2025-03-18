@@ -42,7 +42,7 @@ function Message() {
         return () => {
             socketRef.current.disconnect();
         };
-    }, []); // Chạy lại khi userId thay đổi
+    }, [userId]); // Chạy lại khi userId thay đổi
 
     const combinedMessages = [...messageList, ...messages].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 

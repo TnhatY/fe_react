@@ -44,6 +44,9 @@ function Message() {
         };
     }, []); // Chạy lại khi userId thay đổi
 
+    const combinedMessages = [...messageList, ...messages].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+
     const sendMessage = () => {
         if (message.trim() !== "" && receiverId !== "") {
             socketRef.current.emit("privateMessage", {
@@ -82,14 +85,10 @@ function Message() {
             </div>
 
             <div className="chat-box">
-                {messages.map((m, index) => (
-                    <div key={index} className={`message ${m.from === userId ? "my-message" : "other-message"}`}>
-                        {m.message}
-                    </div>
-                ))}
-                {messageList.map((m, index) => (
-                    <div key={index} className={`message ${m.userId === userId ? "my-message" : "other-message"}`}>
-                        {m.message}
+                {combinedMessages.map((m, index) => (
+                    <div key={index} className={`message ${m.sender === userId ? "my-message" : "other-message"}`}>
+                        <span className="message-info"> {new Date(m.timestamp).toLocaleTimeString()}</span>
+                        <p>{m.message}</p>
                     </div>
                 ))}
             </div>
